@@ -1,0 +1,4913 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Bonusly",
+    "version": "1.0.0",
+    "description": "API docs for https://bonus.ly peer to peer recognition system.\n\n## Basics\n\n### URL Structure\n\nURLs for API requests start with: `https://bonus.ly/api/v1`\n\nFor example: `https://bonus.ly/api/v1/bonuses`\n\n### Authentication\n\nAuthentication to the API is controlled using an access token.\nYou may use a query parameter to send the access token, but **only** if it is a read-only token. Sending a writable token as a query parameter will result in a 401 error.\nSending the access token as an HTTP header is the **only** allowed method for endpoints that modify data.\n\n#### Creating an API token\n\n- Go to the API page at https://bonus.ly/api.\n\n- Click the \"Create New API Access Token\" link which will take you to a page titled \"New Access Token\".\n\n- Give your token a label so you can easily keep track of different tokens\n\n- Decide if you want your token to be read-only\n\n- Click \"Create\" at the bottom of the screen\n\n- You should be taken back to your settings with a message at the top of the screen that says \"New Access Token Created: [your access token here]\".\n  You'll need to copy your token to a secure location since you will not be able to see it again.\n\n#### Authenticating with your API token\n\nTo send the token as a query param set the `access_token` value in the url:\n\n```\nhttp://bonus.ly/api/v1/bonuses?access_token=API-KEY\n```\n\nTo send as an HTTP header set the Authorization header:\n\n```\nAuthorization: Bearer API-KEY\n```\n\nYou may use a query parameter to send the access token, but **only** if it is a read-only token. Sending a writable token as a query parameter will result in a 401 error.\nSending the access token as an HTTP header is the **only** allowed method for endpoints that modify data.\n\n\nYour authentication access token can be found at http://bonus.ly/api\n\nMaking a request without an access token or with a bad access token will result in a 401 - bad or missing access token error.\n\n### Your application name\n\nYou can set your application name by either setting the HTTP_APPLICATION_NAME HTTP header or setting an APPLICATION_NAME cookie.\n\nSetting the application name will set the via property of every bonus created by that application to the application name.\n\n### Rate limiting\n\nRequests are rate limited to ensure that an excessive number of requests are not made within a short period of time.\nIf you go over the rate limit, your requests will be denied until the limit resets.\n\n## RSS\n\n### ATOM extension\n\n#### Bonuses\n\nYou can get a list of bonuses as an ATOM RSS Feed by adding the extension .atom to the normal bonuses 'Index' API call.\n\nFor example: `https://bonus.ly/api/v1/bonuses.atom?access_token=API-KEY`\n\nOnce making a .atom RSS call, you can add the parameter `navori=true` to get an xml response with formating for Navori.\n\n## Responses\n\nCalls to the Bonusly API generally return a JSON in the format of either:\n\n#### Success:\n\n```\n{\n  \"success\": true,\n  \"result\": {*results*}\n}\n```\n\nor\n\n#### Failure:\n\n```\n{\n  \"success\": false,\n  \"message\": \"*message*\"\n}\n```\n\nPossible results (successes) and messages (errors) are listed for each endpoint."
+  },
+  "servers": [
+    {
+      "url": "https://bonus.ly/api",
+      "description": "Production"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "message": {
+            "type": "string",
+            "example": "Bad or missing access token"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "name": "access_token",
+        "in": "query",
+        "type": "apiKey",
+        "description": "(Not recommended) Access token sent as a query parameter. Only use this for read-only tokens. Writable tokens used this way will result in 401 errors."
+      },
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "token",
+        "description": "(Preferred) HTTP header with name \\\"Authorization\\\" and value \\\"Bearer API-TOKEN\\\""
+      }
+    },
+    "parameters": {
+      "ContentType": {
+        "schema": {
+          "type": "string",
+          "enum": [
+            "text/csv",
+            "application/json"
+          ]
+        },
+        "in": "header",
+        "name": "Content-type"
+      }
+    },
+    "responses": {
+      "200": {
+        "description": "Successful response",
+        "content": {
+          "application/json": {},
+          "text/csv": {}
+        }
+      },
+      "GenericError": {
+        "description": "An error occurred.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "example": false
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Bad or missing access token"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "ApiKeyAuth": []
+    },
+    {
+      "BearerAuth": []
+    }
+  ],
+  "paths": {
+    "/v1/achievements": {
+      "get": {
+        "tags": [
+          "Achievements"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "id": "5b16f45e9fb5ba8225bc55ef",
+                    "headline": "George earned the best bonus tagged #help-out for the Engineering Department!",
+                    "title": "best-bonus-received-tagged-#help-out-for-the-engineering-department",
+                    "importance": 0.7,
+                    "bonus_id": "12345abcde",
+                    "scope": {
+                      "department": "engineering"
+                    },
+                    "receiver": {
+                      "id": 1,
+                      "display_name": "George",
+                      "username": "george.applebee",
+                      "email": "george@example.com"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "summary": "List Achievements",
+        "operationId": "List Achievements",
+        "description": "View the 50 most recent achievements for the authenticated user's company.",
+        "parameters": []
+      }
+    },
+    "/v1/analytics/trends": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "result": [
+                    {
+                      "hashtag": "#be-an-excellent-teammate",
+                      "count": 51
+                    },
+                    {
+                      "hashtag": "#go-get-results",
+                      "count": 41
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "449": {
+            "description": "Error - not ready",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Data not ready. Please retry in 5 minutes"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Trends",
+        "operationId": "Trends",
+        "description": "This returns a count of posts by the most popular hashtags in the last 15 days. Counts are live and update with every request.",
+        "tags": [
+          "Analytics"
+        ],
+        "parameters": []
+      }
+    },
+    "/v1/analytics/leaderboards": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "result": [
+                    {
+                      "count": 20,
+                      "user": {
+                        "id": "xxyyy111222",
+                        "short_name": "Annie",
+                        "full_name": "Annie Evans",
+                        "display_name": "Annie",
+                        "username": "annie",
+                        "email": "annie@example.com",
+                        "path": "/company/users/xxyyy111222",
+                        "full_pic_url": "https://bonusly-fog.s3.amazonaws.com/uploads/user/avatar/xxyyy111222/full_headshot.png",
+                        "profile_pic_url": "https://bonusly-fog.s3.amazonaws.com/uploads/user/avatar/xxyyy111222/profile_headshot.png",
+                        "first_name": "Annie",
+                        "last_name": "Evans",
+                        "last_active_at": "2018-12-10T16:27:21Z",
+                        "created_at": "2017-08-23T07:37:09Z",
+                        "external_unique_id": "123",
+                        "budget_boost": 0,
+                        "user_mode": "normal",
+                        "country": "US",
+                        "time_zone": "America/Denver",
+                        "can_receive": true,
+                        "can_give": true,
+                        "give_amounts": [
+                          50,
+                          100,
+                          150,
+                          200,
+                          250
+                        ],
+                        "custom_properties": {
+                          "department": "general administration",
+                          "location": "boulder",
+                          "role": null
+                        },
+                        "status": "active",
+                        "super_admin": true,
+                        "department": "general administration",
+                        "location": "boulder"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "foo"
+                }
+              }
+            }
+          },
+          "449": {
+            "description": "Error - not ready",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Data not ready. Please retry in 5 minutes"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Leaderboards",
+        "operationId": "Leaderboards",
+        "description": "This endpoint returns users ranked by the number of bonuses they've given or received. You can make your query more specific by requesting bonuses with a particular hashtag, bonuses given/received by users on a particular team, or bonuses given/received within a particular date range.",
+        "tags": [
+          "Analytics"
+        ],
+        "parameters": [
+          {
+            "name": "direction",
+            "in": "query",
+            "required": false,
+            "description": "Specifies whether to rank users based on number of bonuses given, or number of bonuses received.",
+            "schema": {
+              "type": "string",
+              "default": "received",
+              "enum": [
+                "received",
+                "given"
+              ]
+            }
+          },
+          {
+            "name": "hashtag",
+            "in": "query",
+            "required": false,
+            "description": "If specified, only bonuses whose most relevant hashtag matches the given hashtag will be returned.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "team",
+            "in": "query",
+            "required": false,
+            "description": "Restricts users returned to those on a particular team, or in a particular part of your company. This argument may be either the id of a manager, eg. '59350a4af9f4ff084f7a0df6', or a set of custom properties in a JSON object, eg. '{\"department\":\"engineering\"}'.",
+            "schema": {
+              "type": "string",
+              "default": "entire-company"
+            }
+          },
+          {
+            "name": "start_date",
+            "in": "query",
+            "required": false,
+            "description": "If specified, only bonuses given on or after this date will be considered. Defaults to 30 days before the date of your query. Date format must be a two digit date followed by a space, a three letter month followed by a space, and a four digit year, eg. \"19+Mar+2017\".",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "required": false,
+            "description": "If specified, only bonuses given on or before this date will be considered. Defaults to the date of your query. Date format must be a two digit date followed by a space, a three letter month followed by a space, and a four digit year, eg. \"19+Mar+2017\".",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/v1/analytics/words": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Popular Words",
+        "description": "Returns a list of tuples in the form of [\"word\", count] which represents the number of times a word appears in the text of Bonuses. The list is sorted from most common word to least common word.",
+        "parameters": [
+          {
+            "name": "placeholder",
+            "in": "query",
+            "required": false,
+            "description": "For testing purposes setting this paramter to `true` will return a set of fake words data.",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "rusult": [
+                    [
+                      "month",
+                      59
+                    ],
+                    [
+                      "aweseome",
+                      44
+                    ],
+                    [
+                      "party",
+                      20
+                    ]
+                  ]
+                }
+              }
+            }
+          },
+          "449": {
+            "description": "Data not ready",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Data not ready. Please retry in 5 minutes"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/data_layer/participation": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Participation Rates",
+        "description": "This is the giving, receiving, and participation (giving or receiving) rate for each user segment of your company. Rates are either monthly or weekly and cover the previously completed 24 months.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "text/csv",
+                "application/json"
+              ]
+            },
+            "in": "header",
+            "name": "Content-type"
+          },
+          {
+            "name": "time_segment",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "month",
+              "enum": [
+                "month",
+                "week"
+              ]
+            },
+            "description": "Period to segment the data",
+            "example": "month"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "columns": [
+                    "GIVING_RATE",
+                    "RECEIVING_RATE",
+                    "PARTICIPATION_RATE",
+                    "DATE",
+                    "PROPERTY_TYPE",
+                    "PROPERTY_VALUE"
+                  ],
+                  "data": [
+                    [
+                      95,
+                      100,
+                      100,
+                      1653955200000,
+                      "department",
+                      "customer success"
+                    ],
+                    [
+                      94,
+                      100,
+                      100,
+                      1656547200000,
+                      "department",
+                      "customer success"
+                    ],
+                    [
+                      86,
+                      89,
+                      89,
+                      1643587200000,
+                      "__overall__",
+                      "__overall__"
+                    ]
+                  ]
+                }
+              },
+              "text/csv": {}
+            }
+          },
+          "401": {
+            "description": "An error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Bad or missing access token"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/data_layer/recognition/bonuses_received": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Recognition Received",
+        "description": "This is the count of recognition received by users. Recognition includes peer to peer recognition, awards, and add-ons. If multiple users were recognized in a single post, recognition of each recipient is counted separately. Totals are monthly and cover the previously completed 24 months.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "text/csv",
+                "application/json"
+              ]
+            },
+            "in": "header",
+            "name": "Content-type"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {},
+              "text/csv": {}
+            }
+          }
+        }
+      }
+    },
+    "/v1/data_layer/recognition/rates": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Recognition Rates",
+        "description": "This is the rate at which users gave or received recognition. Only returns the past 24 months.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "text/csv",
+                "application/json"
+              ]
+            },
+            "in": "header",
+            "name": "Content-type"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {},
+              "text/csv": {}
+            }
+          }
+        }
+      }
+    },
+    "/v1/data_layer/recognition/compare_rates": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Compare Recognition Rates",
+        "description": "These are the rates at which users gave or received recognition. Rates are monthly per user and broken down by the custom properties you have imported into Bonusly (eg. Department, Location, and  Manager’s Team). Data covers the previously completed 24 months.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "text/csv",
+                "application/json"
+              ]
+            },
+            "in": "header",
+            "name": "Content-type"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {},
+              "text/csv": {}
+            }
+          }
+        }
+      }
+    },
+    "/v1/data_layer/recognition/hashtags_all": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "text/csv",
+                "application/json"
+              ]
+            },
+            "in": "header",
+            "name": "Content-type"
+          }
+        ],
+        "summary": "Hashtags Received",
+        "description": "This counts the number of times hashtags were received by users. Totals are monthly and cover the previously completed 24 months.",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "body": {
+                      "type": "object",
+                      "properties": {
+                        "categories": {
+                          "type": "array",
+                          "description": "Months in data set",
+                          "example": "Mar '22, Apr '22"
+                        },
+                        "series": {
+                          "type": "array",
+                          "properties": {
+                            "company_value": {
+                              "type": "boolean"
+                            },
+                            "data": {
+                              "type": "array"
+                            },
+                            "name": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "body": {
+                    "categories": [
+                      "Oct '21",
+                      "Nov '21",
+                      "Dec '21",
+                      "Jan '22",
+                      "Feb '22",
+                      "Mar '22",
+                      "Apr '22",
+                      "May '22",
+                      "Jun '22",
+                      "Jul '22",
+                      "Aug '22",
+                      "Sep '22"
+                    ],
+                    "series": [
+                      {
+                        "company_value": false,
+                        "data": [
+                          427,
+                          445,
+                          420,
+                          447,
+                          430,
+                          482,
+                          509,
+                          551,
+                          559,
+                          521,
+                          423,
+                          468
+                        ],
+                        "name": "#wellness"
+                      },
+                      {
+                        "company_value": true,
+                        "data": [
+                          621,
+                          663,
+                          590,
+                          613,
+                          540,
+                          568,
+                          538,
+                          454,
+                          496,
+                          450,
+                          422,
+                          356
+                        ],
+                        "name": "#be-an-excellent-teammate"
+                      },
+                      {
+                        "company_value": false,
+                        "data": [
+                          365,
+                          510,
+                          439,
+                          430,
+                          348,
+                          356,
+                          338,
+                          332,
+                          273,
+                          431,
+                          273,
+                          304
+                        ],
+                        "name": "#be-an-excellent-team"
+                      },
+                      {
+                        "company_value": true,
+                        "data": [
+                          525,
+                          428,
+                          478,
+                          533,
+                          530,
+                          485,
+                          382,
+                          290,
+                          387,
+                          296,
+                          385,
+                          302
+                        ],
+                        "name": "#go-get-results"
+                      },
+                      {
+                        "company_value": true,
+                        "data": [
+                          206,
+                          203,
+                          197,
+                          279,
+                          200,
+                          227,
+                          187,
+                          137,
+                          135,
+                          115,
+                          181,
+                          181
+                        ],
+                        "name": "#work-smarter"
+                      },
+                      {
+                        "company_value": true,
+                        "data": [
+                          176,
+                          138,
+                          179,
+                          173,
+                          191,
+                          180,
+                          155,
+                          112,
+                          106,
+                          152,
+                          117,
+                          126
+                        ],
+                        "name": "#delight-the-customer"
+                      },
+                      {
+                        "company_value": false,
+                        "data": [
+                          135,
+                          111,
+                          139,
+                          187,
+                          133,
+                          142,
+                          179,
+                          115,
+                          126,
+                          146,
+                          109,
+                          113
+                        ],
+                        "name": "#be-an-excellent-leader"
+                      },
+                      {
+                        "company_value": false,
+                        "data": [
+                          52,
+                          53,
+                          110,
+                          103,
+                          66,
+                          38,
+                          42,
+                          44,
+                          34,
+                          36,
+                          47,
+                          75
+                        ],
+                        "name": "#delight-the-future-customer"
+                      },
+                      {
+                        "company_value": true,
+                        "data": [
+                          80,
+                          74,
+                          96,
+                          73,
+                          38,
+                          45,
+                          59,
+                          40,
+                          22,
+                          30,
+                          48,
+                          61
+                        ],
+                        "name": "#default-to-transparency"
+                      },
+                      {
+                        "company_value": false,
+                        "data": [
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          25,
+                          50,
+                          39,
+                          33,
+                          29,
+                          22
+                        ],
+                        "name": "#go-get-new-teammates"
+                      },
+                      {
+                        "company_value": false,
+                        "data": [
+                          50,
+                          116,
+                          190,
+                          89,
+                          141,
+                          88,
+                          128,
+                          108,
+                          103,
+                          35,
+                          23,
+                          21
+                        ],
+                        "name": "#feedback"
+                      },
+                      {
+                        "company_value": false,
+                        "data": [
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          8
+                        ],
+                        "name": "#welcome-to-bonusly"
+                      },
+                      {
+                        "company_value": false,
+                        "data": [
+                          79,
+                          104,
+                          51,
+                          102,
+                          70,
+                          90,
+                          68,
+                          50,
+                          33,
+                          63,
+                          45,
+                          34
+                        ],
+                        "name": "other"
+                      },
+                      {
+                        "company_value": false,
+                        "data": [
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          17,
+                          0
+                        ],
+                        "name": "#secure-the-org"
+                      },
+                      {
+                        "company_value": true,
+                        "data": [
+                          53,
+                          45,
+                          0,
+                          0,
+                          24,
+                          34,
+                          59,
+                          0,
+                          41,
+                          8,
+                          0,
+                          0
+                        ],
+                        "name": "#seek-and-embrace-diversity"
+                      },
+                      {
+                        "company_value": false,
+                        "data": [
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          11,
+                          0,
+                          0,
+                          0,
+                          0
+                        ],
+                        "name": "#bonuskyirl"
+                      },
+                      {
+                        "company_value": false,
+                        "data": [
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          27,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0
+                        ],
+                        "name": "#hackathon"
+                      },
+                      {
+                        "company_value": false,
+                        "data": [
+                          142,
+                          123,
+                          60,
+                          15,
+                          48,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0
+                        ],
+                        "name": "#grow-the-team"
+                      },
+                      {
+                        "company_value": false,
+                        "data": [
+                          0,
+                          0,
+                          0,
+                          12,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0
+                        ],
+                        "name": "#winrecognition"
+                      },
+                      {
+                        "company_value": false,
+                        "data": [
+                          0,
+                          0,
+                          22,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0,
+                          0
+                        ],
+                        "name": "#so-they-stay-forever"
+                      }
+                    ]
+                  },
+                  "statusCode": 200
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/data_layer/recognition/hashtags_core_value": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "text/csv",
+                "application/json"
+              ]
+            },
+            "in": "header",
+            "name": "Content-type"
+          }
+        ],
+        "summary": "Company Value Hashtags Received",
+        "description": "This counts the number of times hashtags set as Company Values were received by users. Totals are monthly and cover the previously completed 24 months.",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/v1/data_layer/recognition/points_received": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "text/csv",
+                "application/json"
+              ]
+            },
+            "in": "header",
+            "name": "Content-type"
+          }
+        ],
+        "summary": "Points Received",
+        "description": "This is the count of points received by users. Points received include peer to peer recognition, awards, and add-ons. Totals are monthly and cover the previously completed 24 months.",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/v1/data_layer/recognition/user_count": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "text/csv",
+                "application/json"
+              ]
+            },
+            "in": "header",
+            "name": "Content-type"
+          }
+        ],
+        "summary": "User Count",
+        "description": "This counts the number of active users in your account. Active users include any user that was active for at least one day. Totals are monthly and cover the previously completed 24 months.",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/v1/data_layer/recognition/addons": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Recognition Add-ons",
+        "description": "This is the rate at which recognition posts are echoed by another user's add-on recognition.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "text/csv",
+                "application/json"
+              ]
+            },
+            "in": "header",
+            "name": "Content-type"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {},
+              "text/csv": {}
+            }
+          }
+        }
+      }
+    },
+    "/v1/api_keys/": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "id": "583dfa500a149e402b4c8503",
+                    "label": "Dashboard API key",
+                    "read_only": true
+                  }
+                ]
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Bad or missing access token"
+                }
+              }
+            }
+          }
+        },
+        "summary": "List API Keys",
+        "operationId": "List API Keys",
+        "description": "",
+        "tags": [
+          "API Keys"
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "query",
+            "description": "If using an admin access_token, you can see other user's API keys (within your company).",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "post": {
+        "responses": {
+          "201": {
+            "description": "Created",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "New Access Token Created"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Label can't be blank"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Bad or missing access token"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Create API Key",
+        "operationId": "Create API Key",
+        "description": "",
+        "tags": [
+          "API Keys"
+        ],
+        "parameters": [
+          {
+            "name": "label",
+            "in": "query",
+            "description": "Label explaining the use case of this API key.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "read_only",
+            "in": "query",
+            "description": "If provided as `true`, the created API key will only be able to read data from the API (not create/update/destroy).",
+            "required": true,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "description": "Admins can specify a different user for which to create the API key.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/v1/api_keys/{id}": {
+      "delete": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "message": "API Access Token has been destroyed"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Bad or missing access token"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Cancel API Key",
+        "operationId": "Cancel API Key",
+        "description": "",
+        "tags": [
+          "API Keys"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the API key to destroy",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/v1/bonuses": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "id": "24abcdef1234567890abcdef",
+                    "created_at": "2015-10-28T21:26:50Z",
+                    "reason": "For signing up for the world's favorite employee recognition solution! #problem-solving",
+                    "reason_html": "For signing up for the world&#39;s favorite employee-recognition solution! <a class=\"hashtag\" href=\"http://bonus.ly/company/hashtags/problem-solving\">#problem-solving</a>",
+                    "amount": 50,
+                    "amount_with_currency": "50 points",
+                    "value": "#problem-solving",
+                    "giver": {
+                      "id": "24abcdef1234567890abcdef",
+                      "short_name": "Bill",
+                      "display_name": "Bill",
+                      "username": "blumbergh",
+                      "email": "blumbergh@initech56313d8f1ba2397878000004.com",
+                      "path": "/company/users/56313d971ba23978780000c6",
+                      "full_pic_url": "http://bonus.ly/avatar/blumbergh.png",
+                      "profile_pic_url": "http://bonus.ly/avatar/blumbergh.png",
+                      "first_name": "Bill",
+                      "last_name": "Lumbergh",
+                      "last_active_at": null,
+                      "external_unique_id": "foo",
+                      "budget_boost": 0,
+                      "user_mode": "normal",
+                      "country": "US",
+                      "time_zone": "America/Los_Angeles",
+                      "*custom_property_name*": "*custom_property_value*",
+                      "can_give": true,
+                      "earning_balance": 80,
+                      "earning_balance_with_currency": "80 points",
+                      "lifetime_earnings": 80,
+                      "lifetime_earnings_with_currency": "80 points",
+                      "can_receive": true,
+                      "giving_balance": 42,
+                      "giving_balance_with_currency": "42 points",
+                      "status": "archived"
+                    },
+                    "receiver": null,
+                    "child_count": 42,
+                    "child_bonuses": [
+                      {}
+                    ],
+                    "via": "web",
+                    "family_amount": 42
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "summary": "List Bonuses",
+        "operationId": "List Bonuses",
+        "description": "",
+        "tags": [
+          "Bonuses"
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of bonuses to retrieve (min: 1, max: 100)",
+            "schema": {
+              "type": "number",
+              "default": 20
+            }
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "description": "Number of bonuses to skip (for pagination, min: 0)",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "start_time",
+            "in": "query",
+            "description": "Example: `2015-10-28T21:26:50Z`",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "description": "Example: `2015-10-28T21:26:50Z`",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "giver_email",
+            "in": "query",
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "receiver_email",
+            "in": "query",
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "user_email",
+            "in": "query",
+            "description": "Retrieve bonuses that have either giver or receiver with this email",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "hashtag",
+            "in": "query",
+            "description": "Example: `%23teamwork`",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "include_children",
+            "in": "query",
+            "description": "",
+            "schema": {
+              "type": "boolean",
+              "default": "false"
+            }
+          },
+          {
+            "name": "show_private_bonuses",
+            "in": "query",
+            "description": "Include private bonuses, only works for admins.",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ]
+      },
+      "post": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": "24abcdef1234567890abcdef",
+                  "created_at": "2015-10-28T21:26:50Z",
+                  "reason": "For signing up for the world's favorite employee recognition solution! #problem-solving",
+                  "reason_html": "For signing up for the world&#39;s favorite employee recognition solution! <a class=\"hashtag\" href=\"http://bonus.ly/company/hashtags/problem-solving\">#problem-solving</a>",
+                  "amount": 50,
+                  "amount_with_currency": "50 points",
+                  "value": "#problem-solving",
+                  "giver": {
+                    "id": "24abcdef1234567890abcdef",
+                    "short_name": "Bill",
+                    "display_name": "Bill",
+                    "username": "blumbergh",
+                    "email": "blumbergh@initech56313d8f1ba2397878000004.com",
+                    "path": "/company/users/56313d971ba23978780000c6",
+                    "full_pic_url": "http://bonus.ly/avatar/blumbergh.png",
+                    "profile_pic_url": "http://bonus.ly/avatar/blumbergh.png",
+                    "first_name": "Bill",
+                    "last_name": "Lumbergh",
+                    "last_active_at": null,
+                    "external_unique_id": "foo",
+                    "budget_boost": 0,
+                    "user_mode": "normal",
+                    "country": "US",
+                    "time_zone": "America/Los_Angeles",
+                    "*custom_property_name*": "*custom_property_value*",
+                    "can_give": true,
+                    "earning_balance": 80,
+                    "earning_balance_with_currency": "80 points",
+                    "lifetime_earnings": 80,
+                    "lifetime_earnings_with_currency": "80 points",
+                    "can_receive": true,
+                    "giving_balance": 42,
+                    "giving_balance_with_currency": "42 points",
+                    "status": "archived"
+                  },
+                  "receiver": null,
+                  "child_count": 42,
+                  "child_bonuses": [
+                    {}
+                  ],
+                  "via": "web",
+                  "family_amount": 42
+                }
+              }
+            }
+          }
+        },
+        "description": "Create a Bonus",
+        "summary": "Create a Bonus",
+        "operationId": "Create a Bonus",
+        "tags": [
+          "Bonuses"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "giver_email": "blumbergh@initech.com",
+                "reason": "+10 @george and @john for #excellence with that customer, check out the email chain &lucy #service",
+                "parent_bonus_id": "24abcdef1234567890abcdef"
+              },
+              "schema": {
+                "type": "object",
+                "required": [
+                  "reason"
+                ],
+                "properties": {
+                  "giver_email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "reason": {
+                    "type": "string"
+                  },
+                  "parent_bonus_id": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/bonuses/{id}": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": "24abcdef1234567890abcdef",
+                  "created_at": "2015-10-28T21:26:50Z",
+                  "reason": "For signing up for the world's favorite employee recognition solution! #problem-solving",
+                  "reason_html": "For signing up for the world&#39;s favorite employee recognition solution! <a class=\"hashtag\" href=\"http://bonus.ly/company/hashtags/problem-solving\">#problem-solving</a>",
+                  "amount": 50,
+                  "amount_with_currency": "50 points",
+                  "value": "#problem-solving",
+                  "giver": {
+                    "id": "24abcdef1234567890abcdef",
+                    "short_name": "Bill",
+                    "display_name": "Bill",
+                    "username": "blumbergh",
+                    "email": "blumbergh@initech56313d8f1ba2397878000004.com",
+                    "path": "/company/users/56313d971ba23978780000c6",
+                    "full_pic_url": "http://bonus.ly/avatar/blumbergh.png",
+                    "profile_pic_url": "http://bonus.ly/avatar/blumbergh.png",
+                    "first_name": "Bill",
+                    "last_name": "Lumbergh",
+                    "last_active_at": null,
+                    "external_unique_id": "foo",
+                    "budget_boost": 0,
+                    "user_mode": "normal",
+                    "country": "US",
+                    "time_zone": "America/Los_Angeles",
+                    "*custom_property_name*": "*custom_property_value*",
+                    "can_give": true,
+                    "earning_balance": 80,
+                    "earning_balance_with_currency": "80 points",
+                    "lifetime_earnings": 80,
+                    "lifetime_earnings_with_currency": "80 points",
+                    "can_receive": true,
+                    "giving_balance": 42,
+                    "giving_balance_with_currency": "42 points",
+                    "status": "archived"
+                  },
+                  "receiver": null,
+                  "child_count": 42,
+                  "child_bonuses": [
+                    {}
+                  ],
+                  "via": "web",
+                  "family_amount": 42
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Bonus not found"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Retrieve a Bonus",
+        "operationId": "Retrieve a Bonus",
+        "description": "",
+        "tags": [
+          "Bonuses"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the bonus",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "put": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": "24abcdef1234567890abcdef",
+                  "created_at": "2015-10-28T21:26:50Z",
+                  "reason": "For signing up for the world's favorite employee recognition solution! #problem-solving",
+                  "reason_html": "For signing up for the world&#39;s favorite employee recognition solution! <a class=\"hashtag\" href=\"http://bonus.ly/company/hashtags/problem-solving\">#problem-solving</a>",
+                  "amount": 50,
+                  "amount_with_currency": "50 points",
+                  "value": "#problem-solving",
+                  "giver": {
+                    "id": "24abcdef1234567890abcdef",
+                    "short_name": "Bill",
+                    "display_name": "Bill",
+                    "username": "blumbergh",
+                    "email": "blumbergh@initech56313d8f1ba2397878000004.com",
+                    "path": "/company/users/56313d971ba23978780000c6",
+                    "full_pic_url": "http://bonus.ly/avatar/blumbergh.png",
+                    "profile_pic_url": "http://bonus.ly/avatar/blumbergh.png",
+                    "first_name": "Bill",
+                    "last_name": "Lumbergh",
+                    "last_active_at": null,
+                    "external_unique_id": "foo",
+                    "budget_boost": 0,
+                    "user_mode": "normal",
+                    "country": "US",
+                    "time_zone": "America/Los_Angeles",
+                    "*custom_property_name*": "*custom_property_value*",
+                    "can_give": true,
+                    "earning_balance": 80,
+                    "earning_balance_with_currency": "80 points",
+                    "lifetime_earnings": 80,
+                    "lifetime_earnings_with_currency": "80 points",
+                    "can_receive": true,
+                    "giving_balance": 42,
+                    "giving_balance_with_currency": "42 points",
+                    "status": "archived"
+                  },
+                  "receiver": null,
+                  "child_count": 42,
+                  "child_bonuses": [
+                    {}
+                  ],
+                  "via": "web",
+                  "family_amount": 42
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Error message"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "You do not have permission to update/delete this bonus"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Bonus not found"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Update a Bonus",
+        "operationId": "Update a Bonus",
+        "description": "",
+        "tags": [
+          "Bonuses"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the bonus",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "reason": "+10 @george and @john for #excellence with that customer, check out the email chain &lucy #service"
+              },
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reason": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Bonus Deleted"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example1": {
+                    "value": {
+                      "message": "Bonuses are only updatable/deletable within 30 minutes of creation"
+                    }
+                  },
+                  "example2": {
+                    "value": {
+                      "message": "Failed to delete Bonus"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "You do not have permission to update/delete this bonus"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Bonus not found"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Delete a Bonus",
+        "operationId": "Delete a Bonus",
+        "description": "",
+        "tags": [
+          "Bonuses"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the bonus",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/v1/bonuses.atom": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/xml": {
+                "example": [
+                  {
+                    "id": "24abcdef1234567890abcdef",
+                    "created_at": "2015-10-28T21:26:50Z",
+                    "reason": "For signing up for the world's favorite employee recognition solution! #problem-solving",
+                    "reason_html": "For signing up for the world&#39;s favorite employee-recognition solution! <a class=\"hashtag\" href=\"http://bonus.ly/company/hashtags/problem-solving\">#problem-solving</a>",
+                    "amount": 50,
+                    "amount_with_currency": "50 points",
+                    "value": "#problem-solving",
+                    "giver": {
+                      "id": "24abcdef1234567890abcdef",
+                      "short_name": "Bill",
+                      "display_name": "Bill",
+                      "username": "blumbergh",
+                      "email": "blumbergh@initech56313d8f1ba2397878000004.com",
+                      "path": "/company/users/56313d971ba23978780000c6",
+                      "full_pic_url": "http://bonus.ly/avatar/blumbergh.png",
+                      "profile_pic_url": "http://bonus.ly/avatar/blumbergh.png",
+                      "first_name": "Bill",
+                      "last_name": "Lumbergh",
+                      "last_active_at": null,
+                      "external_unique_id": "foo",
+                      "budget_boost": 0,
+                      "user_mode": "normal",
+                      "country": "US",
+                      "time_zone": "America/Los_Angeles",
+                      "*custom_property_name*": "*custom_property_value*",
+                      "can_give": true,
+                      "earning_balance": 80,
+                      "earning_balance_with_currency": "80 points",
+                      "lifetime_earnings": 80,
+                      "lifetime_earnings_with_currency": "80 points",
+                      "can_receive": true,
+                      "giving_balance": 42,
+                      "giving_balance_with_currency": "42 points",
+                      "status": "archived"
+                    },
+                    "receiver": null,
+                    "child_count": 42,
+                    "child_bonuses": [
+                      {}
+                    ],
+                    "via": "web",
+                    "family_amount": 42
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "summary": "XML List Bonuses",
+        "operationId": "XML List Bonuses",
+        "description": "Get a list of bonuses as an ATOM RSS Feed by adding the extension .atom to the normal bonuses 'Index' API call.",
+        "tags": [
+          "Bonuses"
+        ],
+        "parameters": [
+          {
+            "name": "navori",
+            "in": "query",
+            "description": "Request XML response with formatting for Navori",
+            "schema": {
+              "type": "boolean",
+              "default": "false"
+            }
+          }
+        ]
+      }
+    },
+    "/v1/companies/show": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": "24abcdef1234567890abcdef",
+                  "name": "Initech",
+                  "custom_user_properties": [
+                    "department",
+                    "location"
+                  ],
+                  "give_amounts": [
+                    10,
+                    20,
+                    30,
+                    40,
+                    50
+                  ],
+                  "allow_redemptions": true,
+                  "catalog_countries": [
+                    10,
+                    20,
+                    30,
+                    40,
+                    50
+                  ],
+                  "valid_billing_information": true,
+                  "show_bonus_information": true,
+                  "budget": {
+                    "id": "56313d8f1ba2397878000008",
+                    "singular": "point",
+                    "plural": "points",
+                    "format": {
+                      "singular": "[X] point",
+                      "plural": "[X] points"
+                    }
+                  },
+                  "company_hashtags": [
+                    "#teamwork",
+                    "#leadership",
+                    "#problem-solving",
+                    "#innovation",
+                    "#customer-service",
+                    "#vision"
+                  ],
+                  "suggested_hashtags": [
+                    "#teamwork",
+                    "#leadership",
+                    "#problem-solving",
+                    "#innovation",
+                    "#customer-service",
+                    "#vision"
+                  ],
+                  "popular_hashtags": [
+                    "#teamwork",
+                    "#leadership",
+                    "#problem-solving",
+                    "#innovation",
+                    "#customer-service",
+                    "#vision"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "summary": "Retrieve a Company",
+        "operationId": "Retrieve a Company",
+        "description": "",
+        "tags": [
+          "Companies"
+        ],
+        "parameters": []
+      }
+    },
+    "/v1/companies/update": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": "24abcdef1234567890abcdef",
+                  "name": "Initech",
+                  "custom_user_properties": [
+                    "department",
+                    "location"
+                  ],
+                  "give_amounts": [
+                    10,
+                    20,
+                    30,
+                    40,
+                    50
+                  ],
+                  "allow_redemptions": true,
+                  "catalog_countries": [
+                    10,
+                    20,
+                    30,
+                    40,
+                    50
+                  ],
+                  "valid_billing_information": true,
+                  "show_bonus_information": true,
+                  "budget": {
+                    "id": "56313d8f1ba2397878000008",
+                    "singular": "point",
+                    "plural": "points",
+                    "format": {
+                      "singular": "[X] point",
+                      "plural": "[X] points"
+                    }
+                  },
+                  "company_hashtags": [
+                    "#teamwork",
+                    "#leadership",
+                    "#problem-solving",
+                    "#innovation",
+                    "#customer-service",
+                    "#vision"
+                  ],
+                  "suggested_hashtags": [
+                    "#teamwork",
+                    "#leadership",
+                    "#problem-solving",
+                    "#innovation",
+                    "#customer-service",
+                    "#vision"
+                  ],
+                  "popular_hashtags": [
+                    "#teamwork",
+                    "#leadership",
+                    "#problem-solving",
+                    "#innovation",
+                    "#customer-service",
+                    "#vision"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example1": {
+                    "value": {
+                      "message": "Params popular_hashtags is/are invalid"
+                    }
+                  },
+                  "example2": {
+                    "value": {
+                      "message": "foo"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Must be company admin"
+                }
+              }
+            }
+          }
+        },
+        "summary": "[ADMIN] Update a Company",
+        "operationId": "[ADMIN] Update a Company",
+        "description": "",
+        "tags": [
+          "Companies"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "name": "Initech",
+                "custom_user_properties": [
+                  "department",
+                  "location"
+                ]
+              },
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "custom_user_properties": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/redemptions": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "id": "24abcdef1234567890abcdef",
+                    "user_id": "24abcdef1234567890abcdef",
+                    "user_email": "annie.dog@bonus.ly",
+                    "giftee_email": null,
+                    "title": "$10 PayPal Cash Out",
+                    "amount_in_points": 100,
+                    "amount_in_usd": "$10.00",
+                    "categories": [
+                      "cash"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "limit parameter must be between 1 and 100"
+                }
+              }
+            }
+          }
+        },
+        "summary": "List Redemptions",
+        "operationId": "List Redemptions",
+        "description": "",
+        "tags": [
+          "Redemptions"
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of users to retrieve (min: 1, max: 100)",
+            "schema": {
+              "type": "number",
+              "default": 100
+            }
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "description": "Number of users to skip (for pagination, min: 0)",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ]
+      }
+    },
+    "/v1/redemptions/{id}": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": "24abcdef1234567890abcdef",
+                  "created_at": null,
+                  "state": "fulfilled",
+                  "certificate_url": "https://bonus.ly/api/v1/redemptions/24abcdef1234567890abcdef/certificate?certificate_token=API-KEY",
+                  "claim_url": "https://www.virtualrewardcenter.com/Landing.aspx?id=1234567&sid=ABCD1234-1234-ABCD-1234-ABCDEF123456",
+                  "auto_approvable": true,
+                  "reward_details": {
+                    "id": "24abcdef1234567890abcdef",
+                    "name": "$100 Visa - USD Gift Card",
+                    "price": 100,
+                    "display_price": "$100",
+                    "type": "gift_card",
+                    "image_url": "https://bonus.ly/assets/brand_logos/visa_600.png"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Redemption not found"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Retrieve a Redemption",
+        "operationId": "Retrieve a Redemption",
+        "description": "",
+        "tags": [
+          "Redemptions"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the redemption",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/v1/rewards": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "type": "gift_cards",
+                    "name": "Gift Cards",
+                    "rewards": [
+                      {
+                        "name": "Amazon.com",
+                        "image_url": "https://bonus.ly/assets/brand_logos/amazon_com_600.png",
+                        "minimum_display_price": "$10+",
+                        "description": {
+                          "text": "Amazon.com Gift Cards* never expire and can be redeemed towards millions of items at www.amazon.com.",
+                          "html": "Amazon.com Gift Cards<sup>*</sup> never expire and can be redeemed towards millions of items at <a target='_blank' href='http://www.amazon.com'>www.amazon.com</a>."
+                        },
+                        "disclaimer_html": "<sup>*</sup> Amazon.com is not a sponsor of this promotion. Except as required by law, Amazon.com Gift Cards (GCs) cannot be transferred for value or redeemed for cash. GCs may be used only for purchases of eligible goods at Amazon.com or certain of its affiliated websites. For complete terms and conditions, see <a target='_blank' href='http://www.amazon.com/gc-legal'>www.amazon.com/gc-legal</a>. GCs are issued by ACI Gift Cards, Inc., a Washington corporation. All Amazon ®, ™ & © are IP of Amazon.com, Inc. or its affiliates. No expiration date or service fees.",
+                        "warning": "This is not for use in United States",
+                        "categories": [
+                          "general"
+                        ],
+                        "denominations": [
+                          {
+                            "id": "24abcdef1234567890abcdef",
+                            "name": "$10 Amazon.com Gift Card",
+                            "price": 10,
+                            "display_price": "$10"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Params *[params]* is/are invalid"
+                }
+              }
+            }
+          }
+        },
+        "summary": "List Rewards",
+        "operationId": "List Rewards",
+        "description": "",
+        "tags": [
+          "Rewards"
+        ],
+        "parameters": [
+          {
+            "name": "catalog_country",
+            "in": "query",
+            "description": "Example: `US`",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "request_country",
+            "in": "query",
+            "description": "Example: `US`",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "personalize_for",
+            "in": "query",
+            "description": "User id",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/v1/rewards/{id}": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": "24abcdef1234567890abcdef",
+                  "name": "$5 Amazon.com Gift Card",
+                  "price": 5,
+                  "display_price": "$5",
+                  "categories": [
+                    "general"
+                  ],
+                  "description": {
+                    "text": "Amazon.com Gift Cards* never expire and can be redeemed towards millions of items at www.amazon.com.",
+                    "html": "Amazon.com Gift Cards<sup>*</sup> never expire and can be redeemed towards millions of items at <a target='_blank' href='http://www.amazon.com'>www.amazon.com</a>."
+                  },
+                  "image_url": "http://bonus.ly/assets/brand_logos/amazon_com_600.png",
+                  "disclaimer_html": "foo",
+                  "warning": "foo",
+                  "quantity": 42,
+                  "type": "gift_card"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Reward not found"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Retrieve a Reward",
+        "operationId": "Retrieve a Reward",
+        "description": "",
+        "tags": [
+          "Rewards"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the reward",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "request_country",
+            "in": "query",
+            "description": "Example: US",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/v1/custom_rewards_redemptions": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "user_id": {
+                        "type": "string"
+                      },
+                      "user_email": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "amount_in_points": {
+                        "type": "number"
+                      },
+                      "categories": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "fulfillment_partner": {
+                        "type": "string"
+                      },
+                      "color": {
+                        "type": "string"
+                      },
+                      "size": {
+                        "type": "string"
+                      },
+                      "shipping_address": {
+                        "type": "string"
+                      },
+                      "state": {
+                        "type": "string"
+                      },
+                      "claim_date": {
+                        "type": "string"
+                      },
+                      "approved_date": {
+                        "type": "string"
+                      },
+                      "fulfilled_date": {
+                        "type": "string"
+                      },
+                      "errors": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            },
+                            "message": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": [
+                  {
+                    "id": "67f6a95dbf8c7f0ee520d902",
+                    "user_id": "24abcdef1234567890abcdef",
+                    "user_email": "alpal@bonus.ly",
+                    "name": "Soft Shell Jacket",
+                    "amount_in_points": 10,
+                    "categories": [
+                      "swag"
+                    ],
+                    "fulfillment_partner": "Bonusly",
+                    "color": "Black",
+                    "size": "lg",
+                    "shipping_address": "123 Main St, Anytown, USA",
+                    "state": "fulfilled",
+                    "claim_date": "2025-04-09T17:07:41Z",
+                    "approved_date": "2025-04-11T17:29:43Z",
+                    "fulfilled_date": "2025-04-11T17:52:20Z"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "success": false,
+                  "message": "Params *[params]* is/are invalid"
+                }
+              }
+            }
+          }
+        },
+        "summary": "List Custom Rewards Redemptions",
+        "operationId": "List Custom Rewards Redemptions",
+        "description": "List custom reward redemptions",
+        "tags": [
+          "Custom Rewards"
+        ],
+        "parameters": [
+          {
+            "name": "state",
+            "in": "query",
+            "description": "Filter by state. Example: `new` or `approved` or `fulfilled`",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fulfillment_partner",
+            "in": "query",
+            "description": "Filter by fulfillment partner. Example: `Bonusly` or `Virtual Reward Center`",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/v1/custom_rewards_redemptions/approve": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Includes a list of successfully approved custom reward redemptions and a list of errors for any redemptions that were not approved.",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "success": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "user_id": {
+                                "type": "string"
+                              },
+                              "user_email": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "amount_in_points": {
+                                "type": "number"
+                              },
+                              "categories": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              },
+                              "fulfillment_partner": {
+                                "type": "string"
+                              },
+                              "color": {
+                                "type": "string"
+                              },
+                              "size": {
+                                "type": "string"
+                              },
+                              "shipping_address": {
+                                "type": "string"
+                              },
+                              "state": {
+                                "type": "string"
+                              },
+                              "claim_date": {
+                                "type": "string"
+                              },
+                              "approved_date": {
+                                "type": "string"
+                              },
+                              "fulfilled_date": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        },
+                        "errors": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": [
+                  {
+                    "success": true,
+                    "result": {
+                      "success": [
+                        {
+                          "id": "67f6a95dbf8c7f0ee520d902",
+                          "user_id": "24abcdef1234567890abcdef",
+                          "user_email": "thoalpal@bonus.ly",
+                          "name": "Soft Shell Jacket",
+                          "amount_in_points": 10,
+                          "categories": [
+                            "custom"
+                          ],
+                          "fulfillment_partner": "Bonusly",
+                          "color": "Black",
+                          "size": "lg",
+                          "shipping_address": "123 Main St, Anytown, USA",
+                          "state": "approved",
+                          "claim_date": "2025-04-09T17:07:41Z",
+                          "approved_date": "2025-04-11T20:25:01Z",
+                          "fulfilled_date": ""
+                        }
+                      ],
+                      "errors": []
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "errors": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "message": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "success": false,
+                  "result": {
+                    "success": [],
+                    "errors": [
+                      {
+                        "id": "67f6a95dbf8c7f0ee520d902",
+                        "message": "Reward is not updatable at this time"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Approve Custom Reward Redemptions",
+        "operationId": "Approve Custom Reward Redemptions",
+        "description": "Approve multiple custom reward redemptions at once",
+        "tags": [
+          "Custom Rewards"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "ids": [
+                  "67f6a95dbf8c7f0ee520d902",
+                  "67f6a95dbf8c7f0ee520d903"
+                ]
+              },
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/custom_rewards_redemptions/fulfill": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Includes a list of successfully fulfilled custom reward redemptions and a list of errors for any redemptions that were not fulfilled.",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "success": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "user_id": {
+                                "type": "string"
+                              },
+                              "user_email": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "amount_in_points": {
+                                "type": "number"
+                              },
+                              "categories": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              },
+                              "fulfillment_partner": {
+                                "type": "string"
+                              },
+                              "color": {
+                                "type": "string"
+                              },
+                              "size": {
+                                "type": "string"
+                              },
+                              "shipping_address": {
+                                "type": "string"
+                              },
+                              "state": {
+                                "type": "string"
+                              },
+                              "claim_date": {
+                                "type": "string"
+                              },
+                              "approved_date": {
+                                "type": "string"
+                              },
+                              "fulfilled_date": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        },
+                        "errors": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "message": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": [
+                  {
+                    "success": true,
+                    "result": {
+                      "success": [
+                        {
+                          "id": "67f6a95dbf8c7f0ee520d902",
+                          "user_id": "24abcdef1234567890abcdef",
+                          "user_email": "thoalpal@bonus.ly",
+                          "name": "Soft Shell Jacket",
+                          "amount_in_points": 10,
+                          "categories": [
+                            "custom"
+                          ],
+                          "fulfillment_partner": "Bonusly",
+                          "color": "Black",
+                          "size": "lg",
+                          "shipping_address": "123 Main St, Anytown, USA",
+                          "state": "fulfilled",
+                          "claim_date": "2025-04-09T17:07:41Z",
+                          "approved_date": "2025-04-11T20:25:01Z",
+                          "fulfilled_date": "2025-04-11T22:52:20Z"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "result": {
+                      "type": "object",
+                      "properties": {
+                        "errors": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "message": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "success": false,
+                  "result": {
+                    "success": [],
+                    "errors": [
+                      {
+                        "id": "67f6a95dbf8c7f0ee520d902",
+                        "message": "Reward is not updatable at this time"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Fulfill Custom Reward Redemptions",
+        "operationId": "Fulfill Custom Reward Redemptions",
+        "description": "Fulfill multiple custom reward redemptions at once",
+        "tags": [
+          "Custom Rewards"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "ids": [
+                  "67f6a95dbf8c7f0ee520d902",
+                  "67f6a95dbf8c7f0ee520d903"
+                ]
+              },
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/scim11/Users": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "totalResults": 100,
+                  "startIndex": 1,
+                  "itemsPerPage": 100,
+                  "schemas": [
+                    "urn:scim:schemas:core:1.0",
+                    "urn:scim:schemas:extension:enterprise:1.0",
+                    "urn:scim:schemas:extension:bonusly:1.0:User"
+                  ],
+                  "Resources": [
+                    {
+                      "id": "551ade522ee09431e5000015",
+                      "userName": "raphael+thebenefactor@bonus.ly",
+                      "name": {
+                        "familyName": "of Bonusly",
+                        "givenName": "The Great Benefactor"
+                      },
+                      "externalId": "abc123",
+                      "meta": {
+                        "created": "2015-03-31 17:50:10 UTC",
+                        "lastModified": "2019-02-22 19:47:24 UTC",
+                        "location": "/api/scim11/Users/551ade522ee09431e5000015"
+                      },
+                      "addresses": [
+                        {
+                          "country": "US",
+                          "type": "work"
+                        }
+                      ],
+                      "emails": [
+                        {
+                          "value": "raphael+thebenefactor@bonus.ly",
+                          "type": "work"
+                        }
+                      ],
+                      "active": false,
+                      "urn:scim:schemas:extension:enterprise:1.0": {
+                        "department": "management"
+                      },
+                      "urn:scim:schemas:extension:bonusly:1.0:User": {
+                        "location": "heaven",
+                        "manager_email": "bossman@bonus.ly"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "summary": "List users",
+        "operationId": "List users",
+        "description": "Fetch a list of all users. Pagination and filtering are supported.\n\n+ Parameters:\n    + startIndex (number, optional) - The index (starting at 1, *not* 0) of the\n    first record to retrieve. Allows you to skip some users that would normally\n    be returned.\n        + Default: 1\n    + count (number, optional) - Number of users to retrieve (max: 100)\n        + Default: 100\n    + attributes (string, optional) - A comma-separated list of user attributes\n    to retrieve. Use this to return only certain attributes. Allowed\n    attributes are \"id\", \"userName\", \"name\", \"meta\", \"emails\", \"addresses\", \"active\", \"externalId\",\n    \"urn:scim:schemas:extension:enterprise:1.0\", and\n    \"urn:scim:schemas:extension:bonusly:1.0:User\". The last two attributes are\n    additional SCIM schemas, which contain the attributes \"department\", and\n    \"location\", respectively. So, if you'd like to return only the \"emails\" and\n    \"location\" fields from the API you would specify\n    `?attributes=emails,urn:scim:schemas:extension:bonusly:1.0:User` as your\n    query string.\n    + filter (string, optional) - Return only results that match certain attribute\n    values. Currently supported filter strings are: \"userName eq <some_email_address>\"\n    and \"active eq <true/false>\". The `userName` attribute corresponds to the\n    user's `email` in Bonusly. You cannot use these filters together.",
+        "tags": [
+          "SCIM"
+        ],
+        "parameters": []
+      },
+      "post": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "schemas": [
+                    "urn:scim:schemas:core:1.0",
+                    "urn:scim:schemas:extension:enterprise:1.0",
+                    "urn:scim:schemas:extension:bonusly:1.0:User"
+                  ],
+                  "id": "5e2a00789fb5ba752e5639c6",
+                  "userName": "alpal@bonus.ly",
+                  "active": true,
+                  "addresses": [
+                    {
+                      "country": "US",
+                      "type": "work"
+                    }
+                  ],
+                  "emails": [
+                    {
+                      "value": "alpal@bonus.ly",
+                      "type": "work"
+                    }
+                  ],
+                  "name": {
+                    "familyName": "Turing",
+                    "givenName": "Alan"
+                  },
+                  "externalId": "abc123",
+                  "urn:scim:schemas:extension:enterprise:1.0": {
+                    "department": "computational science",
+                    "hired_on": "2023-11-27",
+                    "date_of_birth": "09-03"
+                  },
+                  "urn:scim:schemas:extension:bonusly:1.0:User": {
+                    "location": "bletchley park"
+                  },
+                  "meta": {
+                    "created": "2020-01-23 20:22:18 UTC",
+                    "lastModified": "2020-01-23 20:22:18 UTC",
+                    "location": "/api/scim11/Users/5e2a00789fb5ba752e5639c6"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Create a user",
+        "operationId": "Create a user",
+        "description": "Create a new user in Bonusly. If a deactivated user with the same `userName`\nis found that user will be reactivated and updated to match any passed in\nattributes. If a user already exists with the specified `userName` the API will\nreturn a 409.\n\n+ Parameters:\n    + userName (string, required) - A unique identifier for the user. *This will\n    be imported into Bonusly as the user's `email`*.\n    + name.givenName (string, optional) - *This will be imported into Bonusly as\n    the user's `firstName`*.\n    + name.familyName (string, optional) - *This will be imported into Bonusly as\n    the user's `lastName`*.\n    + externalId (string, optional) - *This will be imported into Bonusly as the user's\n    `external_unique_id`*.\n   + urn:scim:schemas:extension:enterprise:1.0.department (string, optional) -\n    *This will be imported into Bonusly as the user's `department` custom property*.\n    + urn:scim:schemas:extension:bonusly:1.0:User.location (string, optional) -\n    *This will be imported into Bonusly as the user's `location` custom property*.\n    + urn:scim:schemas:extension:bonusly:1.0:User.employee_id (string, optional) -\n    *This will be imported into Bonusly as the user's `employee_id` custom property*.\n    + urn:scim:schemas:extension:bonusly:1.0:User.role (string, optional) -\n    *This will be imported into Bonusly as the user's `role` custom property*.\n    + urn:scim:schemas:extension:bonusly:1.0:User.job_title (string, optional) -\n    *This will be imported into Bonusly as the user's `job_title` custom property*.\n    + urn:scim:schemas:extension:bonusly:1.0:User.division (string, optional) -\n    *This will be imported into Bonusly as the user's `division` custom property*.\n    + urn:scim:schemas:extension:bonusly:1.0:User.business_unit (string, optional) -\n    *This will be imported into Bonusly as the user's `business_unit` custom property*.\n    + urn:scim:schemas:extension:bonusly:1.0:User.user_mode (string, optional) -\n    *This will be imported into Bonusly as the user's `user_mode` - defaults to \"normal\", can be \"benefactor\" or \"receiver\"*.\n    + urn:scim:schemas:extension:bonusly:1.0:User.manager_email (string, optional) -\n    *This will be imported into Bonusly as the user's `manager_email` - this will set the user's manager to the existing user with the matching e-mail address*.\n    + urn:scim:schemas:extension:bonusly:1.0:User.hired_on (string, optional) - format: YYYY-MM-DD\n    *This will be imported into Bonusly as the user's `hired_on`*.\n    + urn:scim:schemas:extension:bonusly:1.0:User.date_of_birth (string, optional) - format: YYYY-MM-DD.\n    *This will be imported into Bonusly as the user's `date_of_birth`. Bonusly only stores the month and day. The year will be stripped*.",
+        "tags": [
+          "SCIM"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "name": {
+                  "givenName": "Alan",
+                  "familyName": "Turing"
+                },
+                "userName": "alpal@bonus.ly",
+                "urn:scim:schemas:extension:enterprise:1.0": {
+                  "department": "Computational Science"
+                },
+                "urn:scim:schemas:extension:bonusly:1.0:User": {
+                  "location": "Bletchley Park",
+                  "date_of_birth": "1990-09-03",
+                  "hired_on": "2023-11-27"
+                }
+              },
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "object",
+                    "properties": {
+                      "givenName": {
+                        "type": "string"
+                      },
+                      "familyName": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "userName": {
+                    "type": "string"
+                  },
+                  "urn:scim:schemas:extension:enterprise:1.0": {
+                    "type": "object",
+                    "properties": {
+                      "department": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "urn:scim:schemas:extension:bonusly:1.0:User": {
+                    "type": "object",
+                    "properties": {
+                      "location": {
+                        "type": "string"
+                      },
+                      "hired_on": {
+                        "type": "string",
+                        "format": "YYYY-MM-DD"
+                      },
+                      "date_of_birth": {
+                        "type": "string",
+                        "format": "YYYY-MM-DD"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/scim11/Users/{id}": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "schemas": [
+                    "urn:scim:schemas:core:1.0",
+                    "urn:scim:schemas:extension:enterprise:1.0",
+                    "urn:scim:schemas:extension:bonusly:1.0:User"
+                  ],
+                  "id": "551ade522ee09431e5000015",
+                  "userName": "raphael+thebenefactor@bonus.ly",
+                  "active": false,
+                  "addresses": [
+                    {
+                      "country": "US",
+                      "type": "work"
+                    }
+                  ],
+                  "emails": [
+                    {
+                      "value": "raphael+thebenefactor@bonus.ly",
+                      "type": "work"
+                    }
+                  ],
+                  "name": {
+                    "familyName": "of Bonusly",
+                    "givenName": "The Great Benefactor"
+                  },
+                  "externalId": "abc123",
+                  "urn:scim:schemas:extension:enterprise:1.0": {
+                    "department": "management"
+                  },
+                  "urn:scim:schemas:extension:bonusly:1.0:User": {
+                    "location": "heaven",
+                    "hired_on": "2023-11-27",
+                    "date_of_birth": "09-03"
+                  },
+                  "meta": {
+                    "created": "2015-03-31 17:50:10 UTC",
+                    "lastModified": "2019-02-22 19:47:24 UTC",
+                    "location": "/api/scim11/Users/551ade522ee09431e5000015"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Retrieve a user",
+        "operationId": "Retrieve a user",
+        "description": "Fetch a specific user by ID.",
+        "tags": [
+          "SCIM"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the user",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "put": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "schemas": [
+                    "urn:scim:schemas:core:1.0",
+                    "urn:scim:schemas:extension:enterprise:1.0",
+                    "urn:scim:schemas:extension:bonusly:1.0:User"
+                  ],
+                  "id": "5e2a00789fb5ba752e5639c6",
+                  "userName": "alpal@bonus.ly",
+                  "active": true,
+                  "addresses": [
+                    {
+                      "country": "US",
+                      "type": "work"
+                    }
+                  ],
+                  "emails": [
+                    {
+                      "value": "alpal@bonus.ly",
+                      "type": "work"
+                    }
+                  ],
+                  "name": {
+                    "familyName": "Turing",
+                    "givenName": "Alan"
+                  },
+                  "externalId": "abc123",
+                  "urn:scim:schemas:extension:enterprise:1.0": {
+                    "department": "cryptography"
+                  },
+                  "urn:scim:schemas:extension:bonusly:1.0:User": {
+                    "location": "bletchley park",
+                    "hired_on": "2023-11-27",
+                    "date_of_birth": "09-03"
+                  },
+                  "meta": {
+                    "created": "2020-01-23 20:22:18 UTC",
+                    "lastModified": "2020-01-23 21:22:18 UTC",
+                    "location": "/api/scim11/Users/5e2a00789fb5ba752e5639c6"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Update an existing user",
+        "operationId": "Update an existing user",
+        "description": "Update an active, existing user in Bonusly. If a user already exists with the\nspecified `userName` the API will return a 409.\n\n+ Parameters:\n    + userName (string, required) - A unique identifier for the user. *This will\n    be imported into Bonusly as the user's `email`*.\n    + name.givenName (string, optional) - *This will be imported into Bonusly as\n    the user's `firstName`*.\n    + name.familyName (string, optional) - *This will be imported into Bonusly as\n    the user's `lastName`*.\n    + addresses.country (string, optional) - *This will be imported into Bonusly as\n    the user's `country` when addresses.type is work*.\n    + externalId (string, optional) - *This will be imported into Bonusly as the user's\n    `external_unique_id`*.\n    + urn:scim:schemas:extension:enterprise:1.0.department (string, optional) -\n    *This will be imported into Bonusly as the user's `department` custom property*.\n    + urn:scim:schemas:extension:bonusly:1.0:User.location (string, optional) -\n    *This will be imported into Bonusly as the user's `location` custom property*.\n    + urn:scim:schemas:extension:bonusly:1.0:User.employee_id (string, optional) -\n    *This will be imported into Bonusly as the user's `employee_id` custom property*.\n    + urn:scim:schemas:extension:bonusly:1.0:User.role (string, optional) -\n    *This will be imported into Bonusly as the user's `role` custom property*.\n    + urn:scim:schemas:extension:bonusly:1.0:User.job_title (string, optional) -\n    *This will be imported into Bonusly as the user's `job_title` custom property*.\n    + urn:scim:schemas:extension:bonusly:1.0:User.division (string, optional) -\n    *This will be imported into Bonusly as the user's `division` custom property*.\n    + urn:scim:schemas:extension:bonusly:1.0:User.business_unit (string, optional) -\n    *This will be imported into Bonusly as the user's `business_unit` custom property*.\n    *This will be imported into Bonusly as the user's `user_mode` - defaults to \"normal\", can be \"benefactor\" or \"receiver\"*.\n    + urn:scim:schemas:extension:bonusly:1.0:User.manager_email (string, optional) -\n    *This will be imported into Bonusly as the user's `manager_email` - this will set the user's manager to the existing user with the matching e-mail address*.\n    + urn:scim:schemas:extension:bonusly:1.0:User.hired_on (string, optional) - format: YYYY-MM-DD\n    *This will be imported into Bonusly as the user's `hired_on`*.\n    + urn:scim:schemas:extension:bonusly:1.0:User.date_of_birth (string, optional) - format: YYYY-MM-DD.\n    *This will be imported into Bonusly as the user's `date_of_birth`. Bonusly only stores the month and day. The year will be stripped*.",
+        "tags": [
+          "SCIM"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the user",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "urn:scim:schemas:extension:enterprise:1.0": {
+                  "department": "Cryptography"
+                }
+              },
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "urn:scim:schemas:extension:enterprise:1.0": {
+                    "type": "object",
+                    "properties": {
+                      "department": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "responses": {
+          "204": {
+            "description": "No Content",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {}
+              }
+            }
+          }
+        },
+        "summary": "Activate or deactivate a user",
+        "operationId": "Activate or deactivate a user",
+        "description": "Activate or deactivate a user in Bonusly.\n\n+ Parameters:\n    + active (boolean, optional) - Set to `true` to activate a user, set to\n    `false` to deactivate a user.\n      + Default: false",
+        "tags": [
+          "SCIM"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the user",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "active": false
+              },
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "active": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/scim11/ServiceProviderConfigs": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "schemas": [
+                    "urn:scim:schemas:core:1.0",
+                    "urn:scim:schemas:extension:enterprise:1.0",
+                    "urn:scim:schemas:extension:bonusly:1.0:User"
+                  ],
+                  "documentationUrl": "https://api.bonus.ly",
+                  "patch": {
+                    "supported": true
+                  },
+                  "bulk": {
+                    "supported": false,
+                    "maxOperations": 1000,
+                    "maxPayloadSize": 1048576
+                  },
+                  "filter": {
+                    "supported": true,
+                    "maxResults": 100
+                  },
+                  "changePassword": {
+                    "supported": false
+                  },
+                  "sort": {
+                    "supported": false
+                  },
+                  "etag": {
+                    "supported": false
+                  },
+                  "xmlDataFormat": {
+                    "supported": false
+                  },
+                  "authenticationSchemes": [
+                    {
+                      "name": "OAuth Bearer Token",
+                      "description": "Authentication Scheme using the OAuth Bearer Token Standard",
+                      "specUrl": "http://tools.ietf.org/html/draft-ietf-oauth-v2-bearer-01",
+                      "documentationUrl": "http://oauth.net/2/",
+                      "type": "oauthbearertoken",
+                      "primary": true
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get metadata about the Bonusly SCIM API",
+        "operationId": "Get metadata about the Bonusly SCIM API",
+        "description": "",
+        "tags": [
+          "SCIM"
+        ],
+        "parameters": []
+      }
+    },
+    "/scim11/ResourceTypes": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "schemas": [
+                    "urn:scim:schemas:core:1.0",
+                    "urn:scim:schemas:extension:enterprise:1.0",
+                    "urn:scim:schemas:extension:bonusly:1.0:User"
+                  ],
+                  "Resources": [
+                    {
+                      "name": "User",
+                      "endpoint": "/Users",
+                      "schema": "urn:scim:schemas:core:1.0:User",
+                      "schemaExtensions": [
+                        {
+                          "schema": "urn:scim:schemas:extension:enterprise:1.0",
+                          "required": true
+                        },
+                        {
+                          "schema": "urn:scim:schemas:extension:bonusly:1.0:User"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "summary": "List the SCIM resource types supported by Bonusly",
+        "operationId": "List the SCIM resource types supported by Bonusly",
+        "description": "",
+        "tags": [
+          "SCIM"
+        ],
+        "parameters": []
+      }
+    },
+    "/scim11/Schemas": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "schemas": [
+                    "urn:scim:schemas:core:1.0:ListResponse"
+                  ],
+                  "Resources": [
+                    {
+                      "id": "urn:scim:schemas:core:1.0:User",
+                      "attributes": [
+                        "id",
+                        "userName",
+                        "name",
+                        "addresses",
+                        "meta",
+                        "emails",
+                        "externalId",
+                        "active"
+                      ]
+                    },
+                    {
+                      "id": "urn:scim:schemas:extension:enterprise:1.0",
+                      "attributes": [
+                        "department"
+                      ]
+                    },
+                    {
+                      "id": "urn:scim:schemas:extension:bonusly:1.0:User",
+                      "attributes": [
+                        "location",
+                        "employee_id",
+                        "role",
+                        "job_title",
+                        "division",
+                        "user_mode",
+                        "manager_email"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "summary": "List the SCIM schemas supported by Bonusly",
+        "operationId": "List the SCIM schemas supported by Bonusly",
+        "description": "",
+        "tags": [
+          "SCIM"
+        ],
+        "parameters": []
+      }
+    },
+    "/v1/users": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "result": [
+                    {
+                      "id": "abcd",
+                      "short_name": "Bob",
+                      "full_name": "Bob Dobalina",
+                      "display_name": "Bob",
+                      "username": "bob",
+                      "email": "bob.dobalina@bonus.ly",
+                      "path": "/company/users/abcd",
+                      "full_pic_url": "https://some-photo.jpg",
+                      "profile_pic_url": "https://another-photo.jpg",
+                      "first_name": "Bob",
+                      "last_name": "Dobalina",
+                      "last_active_at": "2018-12-10T17:07:10Z",
+                      "created_at": "2018-09-17T07:38:51Z",
+                      "external_unique_id": "12345",
+                      "budget_boost": 0,
+                      "user_mode": "normal",
+                      "country": "US",
+                      "time_zone": "America/New_York",
+                      "can_receive": true,
+                      "can_give": true,
+                      "give_amounts": [
+                        50,
+                        100,
+                        150,
+                        200,
+                        250
+                      ],
+                      "custom_properties": {
+                        "department": "sales",
+                        "location": "nyc",
+                        "role": null
+                      },
+                      "status": "active",
+                      "super_admin": true,
+                      "department": "sales",
+                      "location": "nyc"
+                    },
+                    {
+                      "id": "wxyz",
+                      "short_name": "Rob",
+                      "full_name": "Rob Covington",
+                      "display_name": "Robert",
+                      "username": "robert.covington",
+                      "email": "robert.covington@bonus.ly",
+                      "path": "/company/users/wxyz",
+                      "full_pic_url": "https://a-photo.jpg",
+                      "profile_pic_url": "https://my-photo.jpg",
+                      "first_name": "Robert",
+                      "last_name": "Covington",
+                      "last_active_at": "2018-12-10T21:51:10Z",
+                      "created_at": "2018-08-13T07:37:49Z",
+                      "external_unique_id": "4832661",
+                      "budget_boost": 0,
+                      "user_mode": "normal",
+                      "country": "US",
+                      "time_zone": "America/New_York",
+                      "can_receive": true,
+                      "can_give": true,
+                      "give_amounts": [
+                        50,
+                        100,
+                        150,
+                        200,
+                        250
+                      ],
+                      "custom_properties": {
+                        "department": "customer success",
+                        "location": "nyc",
+                        "role": ""
+                      },
+                      "status": "active",
+                      "super_admin": true,
+                      "department": "customer success",
+                      "location": "nyc"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "summary": "List Users",
+        "operationId": "List Users",
+        "description": "",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of users to retrieve (min: 1, max: 100)",
+            "schema": {
+              "type": "number",
+              "default": 20
+            }
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "description": "Number of users to skip (for pagination, min: 0)",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "email",
+            "in": "query",
+            "description": "Example: `blumbergh%40initech.com`",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "externalId",
+            "in": "query",
+            "description": "Example: 'abc123'",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Options: created_at, last_active_at, display_name, first_name, last_name, email, country, time_zone. Default order is 'Ascending', prefix an option with '-' to specify 'Descending'",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "include_archived",
+            "in": "query",
+            "description": "Include archived/deactivated users",
+            "schema": {
+              "type": "boolean",
+              "default": "false"
+            }
+          },
+          {
+            "name": "show_financial_data",
+            "in": "query",
+            "description": "Whether or not to include financial data (giving balance, etc.) (admin only)",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "user_mode",
+            "in": "query",
+            "description": "comma separated list of user_modes (valid user modes are normal, observer, receiver, benefactor, bot)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "post": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "result": {
+                    "id": "wxyz",
+                    "short_name": "Robert",
+                    "full_name": "Robert Covington",
+                    "display_name": "Robert",
+                    "username": "robert.covington",
+                    "email": "robert.covington@bonus.ly",
+                    "path": "/company/users/wxyz",
+                    "full_pic_url": "https://a-photo.jpg",
+                    "profile_pic_url": "https://my-photo.jpg",
+                    "first_name": "Robert",
+                    "last_name": "Covington",
+                    "last_active_at": "2018-12-10T21:51:10Z",
+                    "created_at": "2018-08-13T07:37:49Z",
+                    "external_unique_id": "4832661",
+                    "budget_boost": 0,
+                    "user_mode": "normal",
+                    "country": "US",
+                    "time_zone": "America/New_York",
+                    "can_receive": true,
+                    "can_give": true,
+                    "give_amounts": [
+                      50,
+                      100,
+                      150,
+                      200,
+                      250
+                    ],
+                    "custom_properties": {
+                      "department": "customer success",
+                      "location": "nyc",
+                      "role": ""
+                    },
+                    "status": "active",
+                    "super_admin": true,
+                    "department": "customer success",
+                    "location": "nyc"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Error message"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Must be company admin"
+                }
+              }
+            }
+          }
+        },
+        "summary": "[ADMIN] Create a User",
+        "operationId": "[ADMIN] Create a User",
+        "description": "",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "name": "email",
+            "in": "query",
+            "description": "Email of user to create",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "first_name",
+            "in": "query",
+            "description": "First name of user to create",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "last_name",
+            "in": "query",
+            "description": "Last name of user to create",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "user_mode",
+            "in": "query",
+            "description": "User mode of the user to create, must be one of \"benefactor\", \"bot\", \"normal\", \"observer\", or \"receiver\"",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "normal"
+            }
+          },
+          {
+            "name": "budget_boost",
+            "in": "query",
+            "description": "Amount to supplement user's monthly bonus by",
+            "required": false,
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "external_unique_id",
+            "in": "query",
+            "description": "Unique identifier from a third party system",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "time_zone",
+            "in": "query",
+            "description": "Time zone of the user to create of the format \"Country/City\"",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "country",
+            "in": "query",
+            "description": "The two letter country code of the user to create, eg \"US\" for the United States",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "send_invite",
+            "in": "query",
+            "description": "Send an invitation email?",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "hired_on",
+            "in": "query",
+            "description": "The date on which the user was hired",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "date_of_birth",
+            "in": "query",
+            "description": "The user's birthday. We will strip the year for privacy.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "manager_email",
+            "in": "query",
+            "description": "The email address of the user's manager",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/v1/users/{id}": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": "abcd",
+                  "short_name": "Bob",
+                  "full_name": "Bob Dobalina",
+                  "display_name": "Bob",
+                  "username": "bob",
+                  "email": "bob.dobalina@bonus.ly",
+                  "path": "/company/users/abcd",
+                  "full_pic_url": "https://some-photo.jpg",
+                  "profile_pic_url": "https://another-photo.jpg",
+                  "first_name": "Bob",
+                  "last_name": "Dobalina",
+                  "last_active_at": "2018-12-10T17:07:10Z",
+                  "created_at": "2018-09-17T07:38:51Z",
+                  "external_unique_id": "12345",
+                  "budget_boost": 0,
+                  "user_mode": "normal",
+                  "country": "US",
+                  "time_zone": "America/New_York",
+                  "can_receive": true,
+                  "can_give": true,
+                  "give_amounts": [
+                    50,
+                    100,
+                    150,
+                    200,
+                    250
+                  ],
+                  "custom_properties": {
+                    "department": "sales",
+                    "location": "nyc",
+                    "role": null
+                  },
+                  "status": "active",
+                  "hired_on": "2018-02-21",
+                  "manager_email": "susan@bonus.ly",
+                  "earning_balance": 50,
+                  "earning_balance_with_currency": "50 points",
+                  "lifetime_earnings": 10000,
+                  "lifetime_earnings_with_currency": "10,000 points",
+                  "super_admin": true,
+                  "department": "sales",
+                  "location": "nyc"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "User not found"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Retrieve a User",
+        "operationId": "Retrieve a User",
+        "description": "",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the user",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "put": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": "abcd",
+                  "short_name": "Bob",
+                  "full_name": "Bob Dobalina",
+                  "display_name": "Bob",
+                  "username": "bob",
+                  "email": "bob.dobalina@bonus.ly",
+                  "path": "/company/users/abcd",
+                  "full_pic_url": "https://some-photo.jpg",
+                  "profile_pic_url": "https://another-photo.jpg",
+                  "first_name": "Bob",
+                  "last_name": "Dobalina",
+                  "last_active_at": "2018-12-10T17:07:10Z",
+                  "created_at": "2018-09-17T07:38:51Z",
+                  "external_unique_id": "12345",
+                  "budget_boost": 0,
+                  "user_mode": "benefactor",
+                  "country": "US",
+                  "time_zone": "America/New_York",
+                  "can_receive": true,
+                  "can_give": true,
+                  "give_amounts": [
+                    50,
+                    100,
+                    150,
+                    200,
+                    250
+                  ],
+                  "custom_properties": {
+                    "department": "sales",
+                    "location": "nyc",
+                    "role": null
+                  },
+                  "status": "active",
+                  "super_admin": true,
+                  "department": "sales",
+                  "location": "nyc"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Error message"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "You must be a company admin"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "User not found"
+                }
+              }
+            }
+          }
+        },
+        "summary": "[ADMIN] Update a User",
+        "operationId": "[ADMIN] Update a User",
+        "description": "",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the user",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "email": "blumbergh@initech.com",
+                "first_name": "Bill",
+                "last_name": "Lumbergh",
+                "user_mode": "normal",
+                "budget_boost": 0,
+                "external_unique_id": "foo",
+                "custom_properties": {},
+                "time_zone": "America/Los_Angeles",
+                "country": "US",
+                "manager_email": "bossbergh@initech.com"
+              },
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "first_name": {
+                    "type": "string"
+                  },
+                  "last_name": {
+                    "type": "string"
+                  },
+                  "user_mode": {
+                    "type": "string"
+                  },
+                  "budget_boost": {
+                    "type": "number"
+                  },
+                  "external_unique_id": {
+                    "type": "string"
+                  },
+                  "custom_properties": {
+                    "type": "object",
+                    "properties": {}
+                  },
+                  "time_zone": {
+                    "type": "string"
+                  },
+                  "country": {
+                    "type": "string"
+                  },
+                  "manager_email": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "User deactivated"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Failed to delete user"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Must be a company admin"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "User not found"
+                }
+              }
+            }
+          }
+        },
+        "summary": "[ADMIN] Deactivate a User",
+        "operationId": "[ADMIN] Deactivate a User",
+        "description": "",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the user",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/v1/users/me": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": "24abcdef1234567890abcdef",
+                  "short_name": "Bill",
+                  "display_name": "Bill",
+                  "username": "blumbergh",
+                  "email": "blumbergh@initech56313d8f1ba2397878000004.com",
+                  "path": "/company/users/56313d971ba23978780000c6",
+                  "full_pic_url": "http://bonus.ly/avatar/blumbergh.png",
+                  "profile_pic_url": "http://bonus.ly/avatar/blumbergh.png",
+                  "first_name": "Bill",
+                  "last_name": "Lumbergh",
+                  "last_active_at": null,
+                  "external_unique_id": "foo",
+                  "budget_boost": 0,
+                  "user_mode": "normal",
+                  "country": "US",
+                  "time_zone": "America/Los_Angeles",
+                  "can_give": true,
+                  "give_amounts": [
+                    50,
+                    100,
+                    150,
+                    200,
+                    250
+                  ],
+                  "custom_properties": {
+                    "department": "sales",
+                    "location": "nyc",
+                    "role": null
+                  },
+                  "hired_on": "2018-02-21",
+                  "manager_email": "susan@bonus.ly",
+                  "earning_balance": 80,
+                  "earning_balance_with_currency": "80 points",
+                  "lifetime_earnings": 80,
+                  "lifetime_earnings_with_currency": "80 points",
+                  "can_receive": true,
+                  "giving_balance": 42,
+                  "giving_balance_with_currency": "42 points",
+                  "status": "archived"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Me",
+        "operationId": "Me",
+        "description": "",
+        "tags": [
+          "Users"
+        ],
+        "parameters": []
+      }
+    },
+    "/v1/users/autocomplete": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {}
+          },
+          "400": {
+            "description": "Bad Request",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Query too short"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Autocomplete",
+        "operationId": "Autocomplete",
+        "description": "",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/v1/users/{id}/bonuses": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "id": "24abcdef1234567890abcdef",
+                    "created_at": "2015-10-28T21:26:50Z",
+                    "reason": "For signing up for the world's favorite employee recognition solution! #problem-solving",
+                    "reason_html": "For signing up for the world&#39;s favorite employee recognition solution! <a class=\"hashtag\" href=\"http://bonus.ly/company/hashtags/problem-solving\">#problem-solving</a>",
+                    "amount": 50,
+                    "amount_with_currency": "50 points",
+                    "value": "#problem-solving",
+                    "giver": {
+                      "id": "24abcdef1234567890abcdef",
+                      "short_name": "Bill",
+                      "display_name": "Bill",
+                      "username": "blumbergh",
+                      "email": "blumbergh@initech56313d8f1ba2397878000004.com",
+                      "path": "/company/users/56313d971ba23978780000c6",
+                      "full_pic_url": "http://bonus.ly/avatar/blumbergh.png",
+                      "profile_pic_url": "http://bonus.ly/avatar/blumbergh.png",
+                      "first_name": "Bill",
+                      "last_name": "Lumbergh",
+                      "last_active_at": null,
+                      "external_unique_id": "foo",
+                      "budget_boost": 0,
+                      "user_mode": "normal",
+                      "country": "US",
+                      "time_zone": "America/Los_Angeles",
+                      "*custom_property_name*": "*custom_property_value*",
+                      "can_give": true,
+                      "earning_balance": 80,
+                      "earning_balance_with_currency": "80 points",
+                      "lifetime_earnings": 80,
+                      "lifetime_earnings_with_currency": "80 points",
+                      "can_receive": true,
+                      "giving_balance": 42,
+                      "giving_balance_with_currency": "42 points",
+                      "status": "archived"
+                    },
+                    "receiver": null,
+                    "child_count": 42,
+                    "child_bonuses": [
+                      {}
+                    ],
+                    "via": "web",
+                    "family_amount": 42
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Out of range",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Sorry, *min* ≤ *value* ≤ *max*"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "user not found"
+                }
+              }
+            }
+          }
+        },
+        "summary": "User's Bonuses",
+        "operationId": "Bonuses",
+        "description": "",
+        "tags": [
+          "Users",
+          "Bonuses"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the user",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of bonuses to retrieve (min: 1, max: 100)",
+            "schema": {
+              "type": "number",
+              "default": 20
+            }
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "description": "Number of bonuses to skip (for pagination, min: 0)",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "start_time",
+            "in": "query",
+            "description": "Example: `2015-10-28T21:26:50Z`",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "description": "Example: `2015-10-28T21:26:50Z`",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "hashtag",
+            "in": "query",
+            "description": "Example: `%23teamwork`",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "include_children",
+            "in": "query",
+            "description": "",
+            "schema": {
+              "type": "boolean",
+              "default": "false"
+            }
+          },
+          {
+            "name": "role",
+            "in": "query",
+            "description": "'giver' or 'receiver'",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/v1/users/{id}/achievements": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "id": "5a2b49f11039d9683830db06",
+                    "created_at": "2017-09-11T21:14:07Z",
+                    "deactivated_at": "2017-09-19T19:38:58Z",
+                    "achievement_type_key": "best-bonus-received-tagged-#teamwork",
+                    "scope": {
+                      "department": "customer success"
+                    },
+                    "bonus_id": "59b6fc9fb59b8700339a427b",
+                    "importance": 0.05787781350482315,
+                    "title": "best-bonus-received-tagged-#foo-for-the-marketing-department",
+                    "user": {
+                      "id": "24abcdef1234567890abcdef",
+                      "short_name": "Bill",
+                      "display_name": "Bill",
+                      "username": "blumbergh",
+                      "email": "blumbergh@initech56313d8f1ba2397878000004.com",
+                      "path": "/company/users/56313d971ba23978780000c6",
+                      "full_pic_url": "http://bonus.ly/avatar/blumbergh.png",
+                      "profile_pic_url": "http://bonus.ly/avatar/blumbergh.png",
+                      "first_name": "Bill",
+                      "last_name": "Lumbergh",
+                      "last_active_at": null,
+                      "external_unique_id": "foo",
+                      "budget_boost": 0,
+                      "user_mode": "normal",
+                      "country": "US",
+                      "time_zone": "America/Los_Angeles",
+                      "*custom_property_name*": "*custom_property_value*",
+                      "can_give": true,
+                      "earning_balance": 80,
+                      "earning_balance_with_currency": "80 points",
+                      "lifetime_earnings": 80,
+                      "lifetime_earnings_with_currency": "80 points",
+                      "can_receive": true,
+                      "giving_balance": 42,
+                      "giving_balance_with_currency": "42 points",
+                      "status": "archived"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "user not found"
+                }
+              }
+            }
+          }
+        },
+        "summary": "User's Achievements",
+        "operationId": "Achievements",
+        "description": "",
+        "tags": [
+          "Users",
+          "Achievements"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the user",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/v1/users/{id}/redemptions": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "id": "24abcdef1234567890abcdef",
+                    "created_at": "2023-04-19T07:37:09Z",
+                    "state": "fulfilled",
+                    "catalog_item_id": "1a2b3c4d5e6f",
+                    "certificate_url": "https://bonus.ly/api/v1/redemptions/24abcdef1234567890abcdef/certificate?certificate_token=API-KEY",
+                    "claim_url": "https://www.virtualrewardcenter.com/Landing.aspx?id=1234567&sid=ABCD1234-1234-ABCD-1234-ABCDEF123456",
+                    "auto_approvable": true,
+                    "reward_details": {
+                      "id": "24abcdef1234567890abcdef",
+                      "name": "$100 Visa - USD Gift Card",
+                      "price": 100,
+                      "display_price": "$100",
+                      "type": "gift_card",
+                      "image_url": "https://bonus.ly/assets/brand_logos/visa_600.png"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Out of range",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Sorry, *min* ≤ *value* ≤ *max*"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "You are not authorized to view reward redemptions for *user email*"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "user not found"
+                }
+              }
+            }
+          }
+        },
+        "summary": "User's Redemptions",
+        "operationId": "Redemptions",
+        "description": "",
+        "tags": [
+          "Users",
+          "Redemptions"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the user",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of bonuses to retrieve (min: 1, max: 100)",
+            "schema": {
+              "type": "number",
+              "default": 20
+            }
+          },
+          {
+            "name": "skip",
+            "in": "query",
+            "description": "Number of bonuses to skip (for pagination, min: 0)",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ]
+      },
+      "post": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "redemption": {
+                      "id": "24abcdef1234567890abcdef",
+                      "created_at": "2023-04-19T07:37:09Z",
+                      "state": "fulfilled",
+                      "catalog_item_id": "1a2b3c4d5e6f",
+                      "certificate_url": "https://bonus.ly/api/v1/redemptions/24abcdef1234567890abcdef/certificate?certificate_token=API-KEY",
+                      "claim_url": "https://www.virtualrewardcenter.com/Landing.aspx?id=1234567&sid=ABCD1234-1234-ABCD-1234-ABCDEF123456",
+                      "auto_approvable": true,
+                      "reward_details": {
+                        "id": "24abcdef1234567890abcdef",
+                        "name": "$100 Visa - USD Gift Card",
+                        "price": 100,
+                        "display_price": "$100",
+                        "type": "gift_card",
+                        "image_url": "https://bonus.ly/assets/brand_logos/visa_600.png"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Error message"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "You are not authorized to redeem a reward for *user email*"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "User not found"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Create a Redemption",
+        "operationId": "Create a Redemption",
+        "description": "",
+        "tags": [
+          "Users",
+          "Redemptions"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the user",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "denomination_id": "24abcdef1234567890abcdef"
+              },
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "catalog_item_id": {
+                    "type": "string",
+                    "description": "ID of the item in the Bonusly reward catalog"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/webhooks": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "id": "5b16ba789fb5ba5d06f5e001",
+                    "url": "https://foobarbaz.com",
+                    "event_types": [
+                      "bonus.created",
+                      "achievement_event.created"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "summary": "List Webhooks",
+        "operationId": "List Webhooks",
+        "description": "",
+        "tags": [
+          "Webhooks"
+        ],
+        "parameters": []
+      },
+      "post": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": "12345"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Url can't be blank"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Create Webhook",
+        "operationId": "Create Webhook",
+        "description": "Create a webhook. Pass the following arguments in the request body:\n\n- url (string, required) - The URL you want Bonusly to POST to, eg \"https://foobarbaz.com\".\n\n- event_types (array, optional) - The array of event types you want to be notified of. If present, it can only contain the strings \"bonus.created\" and/or \"achievement_event.created\".",
+        "tags": [
+          "Webhooks"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "url": "https://foobarbaz.com",
+                "event_types": [
+                  "bonus.created",
+                  "achievement_event.created"
+                ]
+              },
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string"
+                  },
+                  "event_types": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/webhooks/{id}": {
+      "put": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": "12345"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Url can't be blank"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Update Webhook",
+        "operationId": "Update Webhook",
+        "description": "Update the url or event types a webhook is subscribed to. Pass the following arguments in the request body:\n\n- url (string, required) - The URL you want Bonusly to POST to, eg \"https://foobarbaz.com\".\n\n- event_types (array, optional) - The array of event types you want to be notified of. If present, it can only contain the strings \"bonus.created\" and/or \"achievement_event.created\".",
+        "tags": [
+          "Webhooks"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the webhook",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "delete": {
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": "12345"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Not found"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Remove Webhook",
+        "operationId": "Remove Webhook",
+        "description": "",
+        "tags": [
+          "Webhooks"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the webhook",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

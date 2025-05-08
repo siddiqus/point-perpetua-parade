@@ -1,106 +1,6 @@
-
 import React, { useState, useEffect } from "react";
 import RecognitionTicker from "@/components/RecognitionTicker";
-
-// Mock data for demonstration
-const mockRecognitions = [
-  {
-    amount: 50,
-    reason_decoded: "Thank you for helping me with the project deadline. Your expertise was invaluable!",
-    giver: {
-      name: "Emma Thompson",
-      email: "emma@example.com",
-      department: "Engineering",
-      profile_pic_url: "https://i.pravatar.cc/150?img=1",
-    },
-    receiver: {
-      name: "John Davis",
-      email: "john@example.com",
-      department: "Product",
-      profile_pic_url: "https://i.pravatar.cc/150?img=2",
-    },
-  },
-  {
-    amount: 25,
-    reason_decoded: "Great presentation yesterday! You really impressed the clients.",
-    giver: {
-      name: "Michael Chen",
-      email: "michael@example.com",
-      department: "Sales",
-      profile_pic_url: "https://i.pravatar.cc/150?img=3",
-    },
-    receiver: {
-      name: "Sarah Johnson",
-      email: "sarah@example.com",
-      department: "Marketing",
-      profile_pic_url: "https://i.pravatar.cc/150?img=4",
-    },
-  },
-  {
-    amount: 100,
-    reason_decoded: "Your leadership on the new feature rollout was exceptional. The team really rallied behind your vision!",
-    giver: {
-      name: "Alex Rodriguez",
-      email: "alex@example.com",
-      department: "Management",
-      profile_pic_url: "https://i.pravatar.cc/150?img=5",
-    },
-    receiver: {
-      name: "Priya Patel",
-      email: "priya@example.com",
-      department: "Engineering",
-      profile_pic_url: "https://i.pravatar.cc/150?img=6",
-    },
-  },
-  {
-    amount: 30,
-    reason_decoded: "Thanks for going above and beyond to help our customer resolve their issue!",
-    giver: {
-      name: "Jamie Wilson",
-      email: "jamie@example.com",
-      department: "Customer Support",
-      profile_pic_url: "https://i.pravatar.cc/150?img=7",
-    },
-    receiver: {
-      name: "David Kim",
-      email: "david@example.com",
-      department: "Customer Success",
-      profile_pic_url: "https://i.pravatar.cc/150?img=8",
-    },
-  },
-  {
-    amount: 75,
-    reason_decoded: "Your code refactoring saved us so much time. The system is running 30% faster now!",
-    giver: {
-      name: "Lisa Wong",
-      email: "lisa@example.com",
-      department: "Engineering",
-      profile_pic_url: "https://i.pravatar.cc/150?img=9",
-    },
-    receiver: {
-      name: "Omar Hassan",
-      email: "omar@example.com",
-      department: "Engineering",
-      profile_pic_url: "https://i.pravatar.cc/150?img=10",
-    },
-  },
-  {
-    amount: 40,
-    reason_decoded: "Thank you for organizing the team building event. It was fun and really brought us together!",
-    giver: {
-      name: "Sophia Martinez",
-      email: "sophia@example.com",
-      department: "HR",
-      profile_pic_url: "https://i.pravatar.cc/150?img=11",
-    },
-    receiver: {
-      name: "Chris Taylor",
-      email: "chris@example.com",
-      department: "Office Management",
-      profile_pic_url: "https://i.pravatar.cc/150?img=12",
-    },
-  },
-];
+import { getBonuses } from "@/services/bonusly";
 
 interface Person {
   name: string;
@@ -125,11 +25,8 @@ const Index = () => {
     // In a real application, this would be an API call
     const fetchRecognitions = async () => {
       try {
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 800));
-        
-        // Set the mock data
-        setRecognitions(mockRecognitions);
+        const recognitions = await getBonuses();
+        setRecognitions(recognitions);
         setLoading(false);
       } catch (err) {
         setError("Failed to load recognitions");
@@ -160,7 +57,7 @@ const Index = () => {
           ) : error ? (
             <div className="h-full flex flex-col items-center justify-center text-destructive">
               <p className="text-lg font-medium">{error}</p>
-              <button 
+              <button
                 className="mt-4 px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
                 onClick={() => window.location.reload()}
               >
@@ -177,7 +74,7 @@ const Index = () => {
         </div>
 
         <footer className="mt-6 text-center text-sm text-muted-foreground">
-          <p>Real-time team recognition dashboard</p>
+          {/* <p>Real-time team recognition dashboard</p> */}
         </footer>
       </div>
     </div>

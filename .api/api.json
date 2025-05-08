@@ -1,0 +1,11 @@
+{
+  "version": "1.0",
+  "apis": [
+    {
+      "identifier": "bonusly",
+      "source": "@bonusly/v1.0#q2gu2tm9ilotzo",
+      "integrity": "sha512-KKCT53F1RWRbNOPzSz5dLFF/bmdAJiajQSWSbwSsUNptvLfhobXbF4K/NrL3RWQ8S3zCIj5fnL5kzWliml9jbA==",
+      "installerVersion": "6.1.3"
+    }
+  ]
+}
