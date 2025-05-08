@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import RecognitionTicker from "@/components/RecognitionTicker";
 import { getBonuses } from "@/services/bonusly";
 
@@ -16,8 +16,26 @@ interface Recognition {
   receiver: Person;
 }
 
+const getHashtagCounts = (
+  recognitions: Recognition[]
+): Record<string, number> => {
+  const counts: Record<string, number> = {};
+
+  recognitions.forEach((recognition) => {
+    const hashtags = recognition.reason_decoded.match(/#\w+/g) || [];
+    hashtags.forEach((tag) => {
+      counts[tag] = (counts[tag] || 0) + 1;
+    });
+  });
+
+  return counts;
+};
+
 const Index = () => {
   const [recognitions, setRecognitions] = useState<Recognition[]>([]);
+  const [hashTagCounts, setHashtagCounts] = useState<Record<string, number>>(
+    {}
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,6 +44,10 @@ const Index = () => {
     const fetchRecognitions = async () => {
       try {
         const recognitions = await getBonuses();
+
+        const hashTagCountsData = getHashtagCounts(recognitions);
+        setHashtagCounts(hashTagCountsData);
+
         setRecognitions(recognitions);
         setLoading(false);
       } catch (err) {
