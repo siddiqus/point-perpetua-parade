@@ -50,7 +50,7 @@ async function listBonuses({
 export async function getBonuses() {
   const results: BonusResult[] = [];
   const date = new Date();
-  date.setDate(date.getDate() - 1); // last day
+  date.setDate(date.getDate() - 3); // last day
 
   let skip = 0;
   while (true) {
